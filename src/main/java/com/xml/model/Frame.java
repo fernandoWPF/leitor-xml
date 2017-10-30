@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -25,9 +26,11 @@ public class Frame extends JFrame {
 	private JTextField caixaDir;
 	private JTextField caixaTag;
 	private JTextField caixaRes;
+	private JCheckBox checkNome;
 	private JLabel labelDir;
 	private JLabel labelTag;
 	private JLabel labelDirExport;
+	private JLabel labelCheck;
 	private JButton exibe;
 	private File arquivos[];
 	private File dir;
@@ -38,20 +41,24 @@ public class Frame extends JFrame {
 		super("Leitor");
 		setLayout(new FlowLayout());
 
-		labelDir = new JLabel("Diretório dos arquivos");
+		labelDir = new JLabel("Dir. arquivos");
 		labelTag = new JLabel("Tag para localizar");
-		labelDirExport = new JLabel("Gerar resultado em");
+		labelDirExport = new JLabel("Resultado em");
+		labelCheck = new JLabel("Imprime nome arquivo");
+		checkNome = new JCheckBox();
 		caixaDir = new JTextField(30);
 		caixaRes = new JTextField(30);
 		caixaTag = new JTextField(10);
+		exibe = new JButton("Gerar");
+		
 		add(labelDir);
 		add(caixaDir);
 		add(labelTag);
 		add(caixaTag);
 		add(labelDirExport);
 		add(caixaRes);
-
-		exibe = new JButton("Gerar");
+		add(labelCheck);
+		add(checkNome);
 		add(exibe);
 
 		exibe.addActionListener(new ActionListener() {
@@ -61,9 +68,10 @@ public class Frame extends JFrame {
 			}
 		});
 
-		this.setVisible(true);
-		this.setSize(400, 150);
+		setVisible(true);
+		setSize(400, 200);
 		pack();
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 
 	private void ler() {
@@ -92,7 +100,7 @@ public class Frame extends JFrame {
 
 					while (j.hasNext()) {
 						Element element = (Element) j.next();
-						trataElement(element);
+						trataElement(element, arquivos[i].getName(), checkNome.isSelected());
 					}
 
 				} catch (Exception ex) {
@@ -106,7 +114,7 @@ public class Frame extends JFrame {
 		}
 	}
 
-	private void trataElement(Element element) {
+	private void trataElement(Element element, String nomeArquivo, Boolean imprimirNome) {
 
 		List<Element> elements = element.getChildren();
 		Iterator<Element> it = elements.iterator();
@@ -115,9 +123,12 @@ public class Frame extends JFrame {
 			Element el = (Element) it.next();
 			if (el.getName().toUpperCase()
 					.equals(caixaTag.getText().isEmpty() ? "" : caixaTag.getText().toUpperCase())) {
-				gerarResult.printf(el.getText() + "%n");
+				if (imprimirNome)
+					gerarResult.printf(nomeArquivo + "   " + el.getText() + "%n");
+				else
+					gerarResult.printf(el.getText() + "%n");
 			}
-			trataElement(el);
+			trataElement(el, nomeArquivo, imprimirNome);
 		}
 	}
 
